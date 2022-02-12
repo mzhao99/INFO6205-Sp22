@@ -4,6 +4,9 @@
 
 package edu.neu.coe.info6205.util;
 
+import edu.neu.coe.info6205.sort.elementary.InsertionSort;
+
+import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -125,4 +128,48 @@ public class Benchmark_Timer<T> implements Benchmark<T> {
     private final Consumer<T> fPost;
 
     final static LazyLogger logger = new LazyLogger(Benchmark_Timer.class);
+
+    public static void main(String[] args){
+        Random rand = new Random();
+
+        for (int n = 50; n < 1700; n *= 2){
+            // Random
+            Integer[] random = new Integer[n];
+            for (int i = 0; i < n; i ++) {
+                random[i] = rand.nextInt();
+            }
+            helper("Random: ", random);
+
+            // Ordered
+            Integer[] ordered = new Integer[n];
+            for (int i = 0; i < n; i ++) {
+                ordered[i] = i;
+            }
+            helper("Ordered:", ordered);
+
+            // Partially-Ordered
+            Integer[] partial = new Integer[n];
+            for (int i = 0; i < n; i ++) {
+                if (i < n / 2)    partial[i] = rand.nextInt();
+                else    partial[i] = i;
+            }
+            helper("Partially-Ordered:", partial);
+
+            //Reverse-Ordered
+            Integer[] reverse = new Integer[n];
+            for (int i = 0; i < n; i ++) {
+                reverse[i] = n - i;
+            }
+            helper("Reverse-Ordered:", reverse);
+        }
+    }
+
+    public static void helper(String desc, Integer[] arr){
+        Benchmark<Boolean> bm = new edu.neu.coe.info6205.util.Benchmark_Timer<>(desc, b -> {
+            InsertionSort insertion = new InsertionSort();
+            insertion.sort(arr.clone(), 0, arr.length);
+        });
+        double result = bm.run(true, 20);
+        System.out.println(desc + result);
+    }
 }
